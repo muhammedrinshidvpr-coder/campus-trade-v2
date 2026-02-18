@@ -77,7 +77,7 @@ export default function ProfilePage() {
         .order("created_at", { ascending: false });
 
       if (userItems) {
-        setItems(userItems as Item[]);
+        setItems(userItems as unknown as Item[]);
       }
 
       setLoading(false);
