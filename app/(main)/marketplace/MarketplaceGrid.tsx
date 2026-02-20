@@ -122,7 +122,7 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-500 text-sm"
+            className="w-full pl-10 pr-4 py-2.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-slate-500 text-sm"
           />
         </div>
 
@@ -140,7 +140,7 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
                 px-4 py-2 rounded-lg text-xs md:text-sm font-semibold whitespace-nowrap transition-all duration-300
                 ${
                   activeCategory === cat
-                    ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25"
+                    ? "bg-gradient-to-r from-indigo-500 to-emerald-600 text-white shadow-lg shadow-indigo-500/25"
                     : "bg-white/5 text-slate-300 hover:bg-white/10 border border-white/5"
                 }
               `}
@@ -179,7 +179,7 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
             onClick={() => openModal(item)}
             className="group relative flex flex-col h-full text-left w-full"
           >
-            <div className="relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl transition-all duration-300 h-full flex flex-col hover:shadow-lg hover:border-blue-500/30 hover:scale-[1.02]">
+            <div className="relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl transition-all duration-300 h-full flex flex-col hover:shadow-lg hover:border-indigo-500/30 hover:scale-[1.02]">
               {/* Item Image - NOTE: Changed to aspect-square for uniform grid */}
               <div className="relative w-full aspect-square bg-zinc-800 flex items-center justify-center overflow-hidden shrink-0">
                 {item.image_url ? (
@@ -206,7 +206,7 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
                 )}
 
                 {/* Title - Smaller font, clamps to 2 lines */}
-                <h3 className="text-sm md:text-base font-bold text-white mb-2 line-clamp-2 leading-tight group-hover:text-blue-400 transition-colors">
+                <h3 className="text-sm md:text-base font-bold text-white mb-2 line-clamp-2 leading-tight group-hover:text-indigo-400 transition-colors">
                   {item.title}
                 </h3>
 
@@ -217,7 +217,7 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
                     ₹{item.price.toLocaleString("en-IN")}
                   </span>
                   {/* Seller Avatar - Small on mobile grid */}
-                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-indigo-500 to-emerald-600 flex items-center justify-center text-white text-xs font-semibold shrink-0">
                     {item.seller?.name
                       ? item.seller.name.charAt(0).toUpperCase()
                       : "?"}
@@ -285,7 +285,7 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
                 <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                   {selectedItem.title}
                 </h2>
-                <div className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+                <div className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-emerald-400">
                   ₹{selectedItem.price.toLocaleString("en-IN")}
                 </div>
               </div>
@@ -302,7 +302,7 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
 
               {/* Seller Info Bar */}
               <div className="flex items-center p-4 bg-white/5 rounded-xl border border-white/10">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
                   {selectedItem.seller?.name
                     ? selectedItem.seller.name.charAt(0).toUpperCase()
                     : "?"}
@@ -323,7 +323,7 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
                   {/* Contact Button */}
                   <button
                     onClick={() => handleContactSeller(selectedItem)}
-                    className="flex-1 py-3.5 px-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-blue-500/25"
+                    className="flex-1 py-3.5 px-4 bg-gradient-to-r from-indigo-500 to-emerald-600 hover:from-blue-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-indigo-500/25"
                   >
                     <svg
                       className="w-5 h-5"
