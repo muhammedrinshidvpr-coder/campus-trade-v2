@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import imageCompression from "browser-image-compression"; // <-- NEW: Import the compressor
 
 export default function SellPage() {
   const router = useRouter();
@@ -37,25 +38,58 @@ export default function SellPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("Textbooks"); // <-- NEW CATEGORY STATE
+  const [category, setCategory] = useState("Textbooks");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // UI state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false); // <-- NEW: Compressing State
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // --- NEW: COMPRESSION LOGIC ---
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError("Image must be smaller than 5MB");
+      // We can increase this limit now because we will compress it anyway!
+      if (file.size > 15 * 1024 * 1024) {
+        setError(
+          "Original image is too massive. Please pick something under 15MB",
+        );
         return;
       }
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
+
+      setError("");
+      setIsCompressing(true); // Show a loading indicator on the image box
+
+      try {
+        // The magic compression settings
+        const options = {
+          maxSizeMB: 0.1, // Target size: 0.1 MB (100 KB)
+          maxWidthOrHeight: 1024, // Shrinks 4K images down to a reasonable size
+          useWebWorker: true, // Uses background processing so the site doesn't freeze
+        };
+
+        // Do the actual compression
+        const compressedFile = await imageCompression(file, options);
+
+        console.log(
+          `Original Size: ${(file.size / 1024 / 1024).toFixed(2)} MB`,
+        );
+        console.log(
+          `Compressed Size: ${(compressedFile.size / 1024).toFixed(2)} KB`,
+        );
+
+        setImageFile(compressedFile);
+        setImagePreview(URL.createObjectURL(compressedFile));
+      } catch (err) {
+        console.error("Compression error:", err);
+        setError("Failed to compress the image. Please try another one.");
+      } finally {
+        setIsCompressing(false);
+      }
     }
   };
 
@@ -79,6 +113,30 @@ export default function SellPage() {
       setError((err as Error).message);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const uploadImageToCloudinary = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append(
+      "upload_preset",
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!,
+    );
+
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+      const data = await res.json();
+      return data.secure_url;
+    } catch (err) {
+      console.error("Error uploading image to Cloudinary:", err);
+      return null;
     }
   };
 
@@ -111,26 +169,18 @@ export default function SellPage() {
         );
       }
 
-      const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const finalImageUrl = await uploadImageToCloudinary(imageFile);
 
-      const { error: uploadError } = await supabase.storage
-        .from("item_images")
-        .upload(filePath, imageFile);
-
-      if (uploadError) throw uploadError;
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("item_images").getPublicUrl(filePath);
+      if (!finalImageUrl) {
+        throw new Error("Failed to upload the image. Please try again.");
+      }
 
       const { error: insertError } = await supabase.from("items").insert({
         title: title.trim(),
         description: description.trim(),
         price: parseFloat(price),
-        category: category, // <-- NEW: SAVING THE CATEGORY
-        image_url: publicUrl,
+        category: category,
+        image_url: finalImageUrl,
         seller_id: userProfile.id,
       });
 
@@ -149,7 +199,7 @@ export default function SellPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-4 pb-20">
+    <div className="min-h-screen bg-slate-950 p-4 pb-20">
       <div className="max-w-2xl mx-auto space-y-8 mt-8">
         <h1 className="text-3xl font-bold text-white">List Your Item</h1>
 
@@ -159,8 +209,16 @@ export default function SellPage() {
             <label className="block text-sm font-semibold text-white mb-4">
               Item Photo
             </label>
-            <div className="flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-xl p-4 hover:border-blue-500/50 transition cursor-pointer relative overflow-hidden h-64 bg-zinc-900">
-              {imagePreview ? (
+            <div className="flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-xl p-4 hover:border-indigo-500/50 transition cursor-pointer relative overflow-hidden h-64 bg-slate-900">
+              {/* Show loading spinner while compressing */}
+              {isCompressing ? (
+                <div className="flex flex-col items-center justify-center text-indigo-400">
+                  <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                  <p className="text-sm font-semibold animate-pulse">
+                    Optimizing image...
+                  </p>
+                </div>
+              ) : imagePreview ? (
                 <img
                   src={imagePreview}
                   className="absolute inset-0 w-full h-full object-cover"
@@ -171,13 +229,18 @@ export default function SellPage() {
                   <p className="text-slate-400 text-sm">
                     Click to upload photo
                   </p>
+                  <p className="text-slate-500 text-xs mt-1">
+                    Auto-compresses to save data
+                  </p>
                 </div>
               )}
+
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="absolute inset-0 opacity-0 cursor-pointer"
+                disabled={isCompressing}
+                className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -191,13 +254,13 @@ export default function SellPage() {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 bg-zinc-900 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-slate-900 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="What are you selling?"
               required
             />
           </div>
 
-          {/* NEW: Category Dropdown */}
+          {/* Category Dropdown */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
             <label className="block text-sm font-semibold text-white mb-3">
               Category
@@ -205,7 +268,7 @@ export default function SellPage() {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-4 py-3 bg-zinc-900 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+              className="w-full px-4 py-3 bg-slate-900 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500 appearance-none"
             >
               <option value="Textbooks">Textbooks & Study Material</option>
               <option value="Electronics">Electronics & Gadgets</option>
@@ -223,7 +286,7 @@ export default function SellPage() {
               <button
                 type="button"
                 onClick={handleGenerateDescription}
-                className="text-xs font-bold text-purple-400 hover:text-purple-300"
+                className="text-xs font-bold text-emerald-400 hover:text-emerald-300"
               >
                 ✨ Magic AI
               </button>
@@ -231,7 +294,7 @@ export default function SellPage() {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-3 bg-zinc-900 border border-white/10 rounded-xl text-white h-32 outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-slate-900 border border-white/10 rounded-xl text-white h-32 outline-none focus:ring-2 focus:ring-indigo-500"
               required
             />
           </div>
@@ -245,7 +308,7 @@ export default function SellPage() {
               type="number"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="w-full px-4 py-3 bg-zinc-900 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-slate-900 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="0"
               required
             />
@@ -257,15 +320,15 @@ export default function SellPage() {
             </p>
           )}
           {success && (
-            <p className="text-green-400 text-sm bg-green-400/10 p-4 rounded-xl border border-green-400/20">
+            <p className="text-emerald-400 text-sm bg-emerald-400/10 p-4 rounded-xl border border-emerald-400/20">
               Listing published! Redirecting...
             </p>
           )}
 
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 disabled:opacity-50"
+            disabled={isSubmitting || isCompressing}
+            className="w-full py-4 bg-gradient-to-r from-indigo-500 to-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 disabled:opacity-50"
           >
             {isSubmitting ? "Uploading..." : "Publish Listing"}
           </button>

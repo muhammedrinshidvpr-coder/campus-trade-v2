@@ -35,7 +35,7 @@ export default async function MarketplacePage() {
   if (error) {
     console.error("Error fetching items:", error);
     return (
-      <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-900 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-red-500/10 rounded-full mb-4">
             <svg
@@ -62,7 +62,7 @@ export default async function MarketplacePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900">
       {/* Header */}
       <div className="border-b border-white/5 backdrop-blur-xl bg-white/5 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -144,7 +144,7 @@ function EmptyState() {
 
       {/* WRAP THE BUTTON IN A LINK COMPONENT */}
       <Link href="/sell">
-        <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg shadow-blue-500/25">
+        <button className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-emerald-600 hover:from-indigo-600 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg shadow-indigo-500/25">
           List Your First Item
         </button>
       </Link>

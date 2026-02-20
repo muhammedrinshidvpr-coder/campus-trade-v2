@@ -13,13 +13,13 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-zinc-950/80 backdrop-blur-xl border-b border-white/10">
+    <nav className="sticky top-0 z-50 w-full bg-slate-950/80 backdrop-blur-xl border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link
             href="/marketplace"
-            className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+            className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-emerald-500 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
           >
             CampusTrade
           </Link>

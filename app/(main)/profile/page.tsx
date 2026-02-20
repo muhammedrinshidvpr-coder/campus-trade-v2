@@ -95,7 +95,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -105,8 +105,8 @@ export default function ProfilePage() {
       {/* --- PROFILE HEADER CARD --- */}
       <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl p-8 md:p-12 shadow-2xl mt-8">
         {/* Abstract Background Glow */}
-        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
 
         {/* --- NEW: LOGOUT BUTTON --- */}
         <button
@@ -131,7 +131,7 @@ export default function ProfilePage() {
 
         <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 mt-4 md:mt-0">
           {/* Big Avatar */}
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-5xl font-bold shadow-xl shadow-blue-500/25 border-4 border-white/10 shrink-0">
+          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 to-emerald-600 flex items-center justify-center text-white text-5xl font-bold shadow-xl shadow-indigo-500/25 border-4 border-white/10 shrink-0">
             {profile?.name ? profile.name.charAt(0).toUpperCase() : "?"}
           </div>
 
@@ -159,7 +159,7 @@ export default function ProfilePage() {
 
       {/* --- USER'S ITEMS GRID --- */}
       <div>
-        <h2 className="text-2xl font-bold text-white mb-6 pl-2 border-l-4 border-blue-500">
+        <h2 className="text-2xl font-bold text-white mb-6 pl-2 border-l-4 border-indigo-500">
           Your Storefront
         </h2>
 
@@ -174,7 +174,7 @@ export default function ProfilePage() {
             </p>
             <button
               onClick={() => router.push("/sell")}
-              className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 hover:scale-105 transition-all"
+              className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 hover:scale-105 transition-all"
             >
               List Your First Item
             </button>

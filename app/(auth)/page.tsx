@@ -197,7 +197,7 @@ export default function AuthOnboarding() {
       <div className="w-full max-w-md">
         {/* Logo & Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-emerald-600 rounded-2xl mb-4">
             <svg
               className="w-8 h-8 text-white"
               fill="none"
@@ -224,14 +224,14 @@ export default function AuthOnboarding() {
               completed={step !== "email"}
             />
             <div
-              className={`h-0.5 w-12 ${step !== "email" ? "bg-blue-500" : "bg-gray-700"}`}
+              className={`h-0.5 w-12 ${step !== "email" ? "bg-indigo-500" : "bg-gray-700"}`}
             />
             <StepIndicator
               active={step === "otp"}
               completed={step === "profile"}
             />
             <div
-              className={`h-0.5 w-12 ${step === "profile" ? "bg-blue-500" : "bg-gray-700"}`}
+              className={`h-0.5 w-12 ${step === "profile" ? "bg-indigo-500" : "bg-gray-700"}`}
             />
             <StepIndicator active={step === "profile"} completed={false} />
           </div>
@@ -265,7 +265,7 @@ export default function AuthOnboarding() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value.toLowerCase())}
                     placeholder="yourname@tkmce.ac.in"
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                     required
                   />
                 </div>
@@ -279,7 +279,7 @@ export default function AuthOnboarding() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 bg-gradient-to-r from-indigo-500 to-emerald-600 text-white font-semibold rounded-lg hover:from-indigo-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Sending..." : "Send OTP"}
                 </button>
@@ -338,7 +338,7 @@ export default function AuthOnboarding() {
                     }
                     placeholder="000000"
                     maxLength={6}
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-center text-2xl tracking-widest placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-center text-2xl tracking-widest placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                     required
                   />
                 </div>
@@ -352,7 +352,7 @@ export default function AuthOnboarding() {
                 <button
                   type="submit"
                   disabled={loading || otp.length !== 6}
-                  className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 bg-gradient-to-r from-indigo-500 to-emerald-600 text-white font-semibold rounded-lg hover:from-indigo-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Verifying..." : "Verify OTP"}
                 </button>
@@ -398,7 +398,7 @@ export default function AuthOnboarding() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="John Doe"
-                      className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                       required
                     />
                   </div>
@@ -421,7 +421,7 @@ export default function AuthOnboarding() {
                         }
                         placeholder="9876543210"
                         maxLength={10}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-r-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-r-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                         required
                       />
                     </div>
@@ -440,7 +440,7 @@ export default function AuthOnboarding() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 bg-gradient-to-r from-indigo-500 to-emerald-600 text-white font-semibold rounded-lg hover:from-indigo-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Creating Profile..." : "Complete Setup"}
                 </button>
@@ -506,9 +506,9 @@ function StepIndicator({
     <div
       className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
         completed
-          ? "bg-blue-500"
+          ? "bg-indigo-500"
           : active
-            ? "bg-blue-500 ring-4 ring-blue-500/30"
+            ? "bg-indigo-500 ring-4 ring-indigo-500/30"
             : "bg-gray-700"
       }`}
     >
