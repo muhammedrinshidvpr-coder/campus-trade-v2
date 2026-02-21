@@ -8,8 +8,9 @@ export default function Navbar() {
 
   const navLinks = [
     { name: "Marketplace", path: "/marketplace" },
+    { name: "Wishlist", path: "/wishlist" }, // <-- NEW WISHLIST LINK
     { name: "Sell Item", path: "/sell" },
-    { name: "Profile", path: "/profile" }, // <-- NEW PROFILE LINK
+    { name: "Profile", path: "/profile" },
   ];
 
   return (

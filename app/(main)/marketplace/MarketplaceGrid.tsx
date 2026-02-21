@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import DeleteButton from "../../components/DeleteButton";
 
-// Define types (unchanged)
+// Define types
 type Seller = {
   id: string;
   name: string;
@@ -23,13 +23,13 @@ type Item = {
 };
 
 export default function MarketplaceGrid({ items }: { items: Item[] }) {
-  // NOTE: We need state to track which item is currently opened in the modal
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
-  // --- Search & Filter State ---
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+
+  // --- NEW: FAVORITES STATE ---
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const supabase = createClient(
@@ -37,24 +37,69 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     );
 
-    const fetchUser = async () => {
+    const fetchUserAndFavorites = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
       if (user) {
         setCurrentUserId(user.id);
+
+        // Fetch this user's liked items from our new database table
+        const { data: favData } = await supabase
+          .from("favorites")
+          .select("item_id")
+          .eq("user_id", user.id);
+
+        if (favData) {
+          setFavorites(new Set(favData.map((f) => f.item_id)));
+        }
       }
     };
-    fetchUser();
+    fetchUserAndFavorites();
   }, []);
 
-  // Helper function to close modal and prevent scrolling body
+  // --- NEW: TOGGLE FAVORITE LOGIC ---
+  const toggleFavorite = async (e: React.MouseEvent, itemId: string) => {
+    e.stopPropagation(); // This prevents the big modal from opening when you just want to click the heart!
+
+    if (!currentUserId) {
+      alert("Please log in to save items!");
+      return;
+    }
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
+
+    const isFavorited = favorites.has(itemId);
+
+    // Optimistic UI: Update the screen instantly!
+    const newFavorites = new Set(favorites);
+    if (isFavorited) {
+      newFavorites.delete(itemId);
+      setFavorites(newFavorites);
+      // Delete from database in background
+      await supabase
+        .from("favorites")
+        .delete()
+        .match({ user_id: currentUserId, item_id: itemId });
+    } else {
+      newFavorites.add(itemId);
+      setFavorites(newFavorites);
+      // Save to database in background
+      await supabase
+        .from("favorites")
+        .insert({ user_id: currentUserId, item_id: itemId });
+    }
+  };
+
   const closeModal = () => {
     setSelectedItem(null);
     document.body.style.overflow = "auto";
   };
 
-  // Helper function to open modal and stop body scrolling background
   const openModal = (item: Item) => {
     setSelectedItem(item);
     document.body.style.overflow = "hidden";
@@ -98,9 +143,8 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
 
   return (
     <div className="space-y-6">
-      {/* --- SEARCH & FILTER BAR (Made more compact for mobile) --- */}
+      {/* Search & Filter Bar */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-3 md:p-4 backdrop-blur-xl flex flex-col md:flex-row gap-3 items-center justify-between shadow-xl">
-        {/* Search Input */}
         <div className="relative w-full md:w-1/2">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg
@@ -122,11 +166,10 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-slate-500 text-sm"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-900/50 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-slate-500 text-sm"
           />
         </div>
 
-        {/* Category Chips (Smaller on mobile) */}
         <div
           className="flex gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0"
           style={{ scrollbarWidth: "none" }}
@@ -152,7 +195,6 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
         </div>
       </div>
 
-      {/* --- EMPTY STATE --- */}
       {filteredItems.length === 0 && (
         <div className="text-center py-20 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
           <div className="text-5xl mb-4">🔍</div>
@@ -169,19 +211,16 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
         </div>
       )}
 
-      {/* --- THE NEW MOBILE-FIRST GRID --- */}
-      {/* NOTE: Changed grid-cols-1 to grid-cols-2 for mobile. Reduced gap. */}
+      {/* Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
         {filteredItems.map((item) => (
-          // NOTE: The entire card is now a button that opens the modal
           <button
             key={item.id}
             onClick={() => openModal(item)}
             className="group relative flex flex-col h-full text-left w-full"
           >
             <div className="relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl transition-all duration-300 h-full flex flex-col hover:shadow-lg hover:border-indigo-500/30 hover:scale-[1.02]">
-              {/* Item Image - NOTE: Changed to aspect-square for uniform grid */}
-              <div className="relative w-full aspect-square bg-zinc-800 flex items-center justify-center overflow-hidden shrink-0">
+              <div className="relative w-full aspect-square bg-slate-800 flex items-center justify-center overflow-hidden shrink-0">
                 {item.image_url ? (
                   <img
                     src={item.image_url}
@@ -191,32 +230,44 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
                 ) : (
                   <span className="text-4xl">📦</span>
                 )}
-                {/* Time Badge - Smaller on mobile */}
+
+                {/* --- NEW: THE HEART BUTTON --- */}
+                <div
+                  onClick={(e) => toggleFavorite(e, item.id)}
+                  className="absolute top-2 left-2 z-20 p-2 bg-black/40 backdrop-blur-md hover:bg-black/60 rounded-full transition-all duration-200 border border-white/10 flex items-center justify-center"
+                >
+                  <svg
+                    className={`w-4 h-4 md:w-5 md:h-5 transition-colors duration-200 ${favorites.has(item.id) ? "text-red-500 fill-red-500" : "text-white fill-transparent"}`}
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    />
+                  </svg>
+                </div>
+
                 <div className="absolute top-2 right-2 z-20 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded-full text-[10px] md:text-xs text-white font-medium border border-white/10">
                   {formatTimeAgo(item.created_at)}
                 </div>
               </div>
 
-              {/* Compact Content for Grid View */}
               <div className="p-3 md:p-4 flex flex-col flex-grow">
                 {item.category && (
                   <span className="inline-block text-slate-400 text-[10px] md:text-xs mb-1.5 w-max">
                     {item.category}
                   </span>
                 )}
-
-                {/* Title - Smaller font, clamps to 2 lines */}
                 <h3 className="text-sm md:text-base font-bold text-white mb-2 line-clamp-2 leading-tight group-hover:text-indigo-400 transition-colors">
                   {item.title}
                 </h3>
-
-                {/* NOTE: Description is HIDDEN in grid view to save space */}
-
                 <div className="mt-auto pt-2 flex items-center justify-between">
                   <span className="text-lg md:text-xl font-extrabold text-white">
                     ₹{item.price.toLocaleString("en-IN")}
                   </span>
-                  {/* Seller Avatar - Small on mobile grid */}
                   <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-indigo-500 to-emerald-600 flex items-center justify-center text-white text-xs font-semibold shrink-0">
                     {item.seller?.name
                       ? item.seller.name.charAt(0).toUpperCase()
@@ -229,19 +280,16 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
         ))}
       </div>
 
-      {/* --- THE ZOOM MODAL (Detailed View) --- */}
+      {/* Modal */}
       {selectedItem && (
-        // Modal Overlay Background
         <div
           className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
-          onClick={closeModal} // Close when clicking outside
+          onClick={closeModal}
         >
-          {/* Modal Content Card */}
           <div
-            className="relative w-full max-w-lg bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()} // Prevent clicks inside closing modal
+            className="relative w-full max-w-lg bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button ('X') */}
             <button
               onClick={closeModal}
               className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
@@ -261,8 +309,7 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
               </svg>
             </button>
 
-            {/* Big Image in Modal */}
-            <div className="relative w-full h-72 md:h-96 bg-zinc-800 flex items-center justify-center overflow-hidden">
+            <div className="relative w-full h-72 md:h-96 bg-slate-800 flex items-center justify-center overflow-hidden">
               {selectedItem.image_url ? (
                 <img
                   src={selectedItem.image_url}
@@ -274,7 +321,6 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
               )}
             </div>
 
-            {/* Full Details in Modal */}
             <div className="p-6 md:p-8 space-y-6">
               <div>
                 {selectedItem.category && (
@@ -290,7 +336,6 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
                 </div>
               </div>
 
-              {/* Full Description */}
               <div>
                 <h4 className="text-sm font-semibold text-slate-300 mb-2">
                   Description
@@ -300,7 +345,6 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
                 </p>
               </div>
 
-              {/* Seller Info Bar */}
               <div className="flex items-center p-4 bg-white/5 rounded-xl border border-white/10">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
                   {selectedItem.seller?.name
@@ -317,13 +361,11 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
                 </div>
               </div>
 
-              {/* Action Buttons (Moved inside modal) */}
               <div className="flex flex-col gap-3 pt-2">
                 <div className="flex gap-3 w-full">
-                  {/* Contact Button */}
                   <button
                     onClick={() => handleContactSeller(selectedItem)}
-                    className="flex-1 py-3.5 px-4 bg-gradient-to-r from-indigo-500 to-emerald-600 hover:from-blue-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-indigo-500/25"
+                    className="flex-1 py-3.5 px-4 bg-gradient-to-r from-indigo-500 to-emerald-600 hover:from-indigo-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-indigo-500/25"
                   >
                     <svg
                       className="w-5 h-5"
@@ -335,10 +377,9 @@ export default function MarketplaceGrid({ items }: { items: Item[] }) {
                     <span>Contact</span>
                   </button>
 
-                  {/* Share Button */}
                   <button
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent clicking the modal background
+                      e.stopPropagation();
                       const itemUrl = `${window.location.origin}/marketplace`;
                       const text = `Hey! I found "${selectedItem.title}" for ₹${selectedItem.price} on CampusTrade 🚀\n\nCheck it out here: ${itemUrl}`;
                       window.open(
