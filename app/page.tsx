@@ -52,7 +52,7 @@ export default function LandingPage() {
             </Link>
 
             <Link
-              href="/profile"
+              href="/login"
               className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl border border-white/10 text-lg transition-all backdrop-blur-sm flex items-center justify-center"
             >
               Make a Profile

@@ -6,7 +6,7 @@ import { useState } from "react";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false); // Controls the mobile menu
+  const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -17,7 +17,8 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-slate-950/80 backdrop-blur-xl border-b border-white/10">
+    // CHANGED: Increased z-index to z-[999] to force it above everything else
+    <nav className="sticky top-0 z-[999] w-full bg-slate-950/95 backdrop-blur-xl border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -53,7 +54,6 @@ export default function Navbar() {
               className="text-slate-300 hover:text-white focus:outline-none p-2"
             >
               {isOpen ? (
-                // "X" Close Icon
                 <svg
                   className="w-6 h-6"
                   fill="none"
@@ -68,7 +68,6 @@ export default function Navbar() {
                   />
                 </svg>
               ) : (
-                // "Hamburger" Menu Icon
                 <svg
                   className="w-6 h-6"
                   fill="none"
@@ -90,13 +89,14 @@ export default function Navbar() {
 
       {/* MOBILE Dropdown Menu */}
       {isOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full bg-slate-950/95 backdrop-blur-xl border-b border-white/10 shadow-2xl animate-in slide-in-from-top-2 duration-200">
+        // CHANGED: Changed to top-full so it sits right under the nav, and made background solid bg-slate-950
+        <div className="md:hidden absolute top-full left-0 w-full bg-slate-950 border-b border-white/10 shadow-2xl">
           <div className="px-4 pt-2 pb-6 space-y-2 flex flex-col">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.path}
-                onClick={() => setIsOpen(false)} // Closes menu when a link is clicked
+                onClick={() => setIsOpen(false)}
                 className={`block px-4 py-3 rounded-xl text-base font-bold transition-all ${
                   pathname === link.path
                     ? "bg-gradient-to-r from-indigo-500/20 to-emerald-500/20 text-white border border-white/10"
