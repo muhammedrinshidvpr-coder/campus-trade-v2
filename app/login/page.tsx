@@ -67,10 +67,10 @@ export default function AuthOnboarding() {
     e.preventDefault();
     setError("");
 
-    //if (!validateEmail(email)) {
-    //  setError("Please use your @tkmce.ac.in college email");
-    //  return;
-    //}
+    if (!validateEmail(email)) {
+      setError("Please use your @tkmce.ac.in college email");
+      return;
+    }
 
     setLoading(true);
 
