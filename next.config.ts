@@ -1,6 +1,7 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  // Your existing image rules stay exactly the same
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  // Your existing image rules
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**.supabase.co" },
@@ -8,16 +9,15 @@ const nextConfig = {
     ],
   },
 
-  // NEW: The Proxy Tunnel
+  // The Proxy Tunnel for Supabase
   async rewrites() {
     return [
       {
         source: "/supabase/:path*",
-        // CRITICAL: Replace the URL below with your actual Supabase Project URL!
         destination: "https://foauzjwnluooojshbdnp.supabase.co/:path*",
       },
     ];
   },
 };
+
 export default nextConfig;
-module.exports = nextConfig;

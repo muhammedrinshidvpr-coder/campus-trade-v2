@@ -8,16 +8,17 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
+  // --- ADDED THE STARTUPS LINK HERE ---
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Marketplace", path: "/marketplace" },
+    { name: "Student Brands ✨", path: "/startups" },
     { name: "Wishlist", path: "/wishlist" },
     { name: "Sell Item", path: "/sell" },
     { name: "Profile", path: "/profile" },
   ];
 
   return (
-    // CHANGED: Increased z-index to z-[999] to force it above everything else
     <nav className="sticky top-0 z-[999] w-full bg-slate-950/95 backdrop-blur-xl border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -89,7 +90,6 @@ export default function Navbar() {
 
       {/* MOBILE Dropdown Menu */}
       {isOpen && (
-        // CHANGED: Changed to top-full so it sits right under the nav, and made background solid bg-slate-950
         <div className="md:hidden absolute top-full left-0 w-full bg-slate-950 border-b border-white/10 shadow-2xl">
           <div className="px-4 pt-2 pb-6 space-y-2 flex flex-col">
             {navLinks.map((link) => (

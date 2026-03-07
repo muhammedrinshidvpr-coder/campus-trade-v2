@@ -1,4 +1,5 @@
 import Link from "next/link";
+import FeaturedStartupAd from "@/app/components/FeaturedStartupAd";
 
 export default function LandingPage() {
   return (
@@ -8,7 +9,7 @@ export default function LandingPage() {
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-600/20 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <div className="relative z-10 max-w-3xl mx-auto text-center space-y-8">
+        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8 py-12">
           {/* Badge */}
           <div className="inline-flex items-center px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-sm font-medium text-slate-300 mb-4 shadow-xl">
             <span className="flex w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
@@ -57,6 +58,12 @@ export default function LandingPage() {
             >
               Make a Profile
             </Link>
+          </div>
+
+          {/* --- THE MONEY MAKER: FEATURED STARTUP AD --- */}
+          {/* It automatically hides itself if no startup has is_featured = true */}
+          <div className="w-full max-w-2xl mx-auto mt-16">
+            <FeaturedStartupAd />
           </div>
         </div>
       </main>
