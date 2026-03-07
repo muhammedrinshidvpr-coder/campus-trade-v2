@@ -128,12 +128,13 @@ export default function FeaturedStartupAd() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-3 w-full md:w-auto z-10">
+          {/* FIX: Changed to flex-col on mobile so they stack, keeping flex-row on larger screens */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto z-10 mt-2 md:mt-0">
             {/* Show 'View Promo' button ONLY if they uploaded an ad_image_url */}
             {featured.ad_image_url && (
               <button
                 onClick={() => setActivePromo(featured.ad_image_url)}
-                className="flex-1 md:flex-none px-5 py-3 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 text-sm font-bold rounded-xl transition-all whitespace-nowrap text-center flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-5 py-3 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 text-sm font-bold rounded-xl transition-all whitespace-nowrap text-center flex items-center justify-center gap-2"
               >
                 <span>View Offers</span>
                 <span>🎁</span>
@@ -144,7 +145,7 @@ export default function FeaturedStartupAd() {
               href={featured.action_link}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 md:flex-none px-6 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-950 text-sm font-extrabold rounded-xl transition-all whitespace-nowrap text-center shadow-lg shadow-yellow-500/20"
+              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-950 text-sm font-extrabold rounded-xl transition-all whitespace-nowrap text-center shadow-lg shadow-yellow-500/20"
             >
               Connect Now
             </a>
