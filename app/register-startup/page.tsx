@@ -3,14 +3,12 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import imageCompression from "browser-image-compression";
 
 export default function RegisterStartup() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-
-  // NEW: State to check if we are still verifying their login status
   const [authChecking, setAuthChecking] = useState(true);
-
   const [message, setMessage] = useState("");
 
   // Form States
@@ -22,7 +20,7 @@ export default function RegisterStartup() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [adFile, setAdFile] = useState<File | null>(null);
 
-  // NEW: The "Bouncer" - Checks their ID at the door before letting them see the form
+  // The "Bouncer" - Checks their ID at the door before letting them see the form
   useEffect(() => {
     const checkAuth = async () => {
       const supabase = createClient(
@@ -35,12 +33,10 @@ export default function RegisterStartup() {
       } = await supabase.auth.getUser();
 
       if (!user) {
-        // If they don't have a profile, kick them to the login page!
         router.push(
           "/login?message=Please create a profile to launch your startup.",
         );
       } else {
-        // If they are logged in, let them in!
         setAuthChecking(false);
       }
     };
@@ -52,6 +48,32 @@ export default function RegisterStartup() {
     e.preventDefault();
     setLoading(true);
     setMessage("");
+
+    // 🛡️ SECURITY FIX 1: Prevent XSS via malicious URLs
+    if (
+      !actionLink.startsWith("http://") &&
+      !actionLink.startsWith("https://") &&
+      !actionLink.startsWith("https://wa.me/")
+    ) {
+      setMessage(
+        "❌ Error: Contact link must be a valid http://, https://, or https://wa.me/ URL.",
+      );
+      setLoading(false);
+      return;
+    }
+
+    // 🛡️ SECURITY FIX 2: Prevent massive files from crashing the browser before compression
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 Megabytes
+    if (
+      (logoFile && logoFile.size > MAX_FILE_SIZE) ||
+      (adFile && adFile.size > MAX_FILE_SIZE)
+    ) {
+      setMessage(
+        "❌ Error: Files must be under 5MB. Please choose a smaller image.",
+      );
+      setLoading(false);
+      return;
+    }
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -73,13 +95,27 @@ export default function RegisterStartup() {
       let logoUrl = "";
       let adImageUrl = "";
 
-      // 1. Upload Logo
+      // 🗜️ THE COMPRESSION SETTINGS (Max 200KB)
+      const compressionOptions = {
+        maxSizeMB: 0.2,
+        maxWidthOrHeight: 1080,
+        useWebWorker: true,
+      };
+
+      // 1. Compress & Upload Logo
       if (logoFile) {
-        const fileExt = logoFile.name.split(".").pop();
+        const compressedLogo = await imageCompression(
+          logoFile,
+          compressionOptions,
+        );
+        const fileExt = compressedLogo.name.split(".").pop();
         const fileName = `logo_${Math.random()}.${fileExt}`;
+
         const { error: uploadError } = await supabase.storage
           .from("startup-logos")
-          .upload(fileName, logoFile, { contentType: logoFile.type });
+          .upload(fileName, compressedLogo, {
+            contentType: compressedLogo.type,
+          });
 
         if (uploadError) throw uploadError;
         const {
@@ -88,13 +124,15 @@ export default function RegisterStartup() {
         logoUrl = publicUrl;
       }
 
-      // 2. Upload Promo/Ad Image
+      // 2. Compress & Upload Promo/Ad Image
       if (adFile) {
-        const fileExt = adFile.name.split(".").pop();
+        const compressedAd = await imageCompression(adFile, compressionOptions);
+        const fileExt = compressedAd.name.split(".").pop();
         const fileName = `promo_${Math.random()}.${fileExt}`;
+
         const { error: adUploadError } = await supabase.storage
           .from("startup-logos")
-          .upload(fileName, adFile, { contentType: adFile.type });
+          .upload(fileName, compressedAd, { contentType: compressedAd.type });
 
         if (adUploadError) throw adUploadError;
         const {
@@ -128,7 +166,6 @@ export default function RegisterStartup() {
     }
   };
 
-  // NEW: Show a loading spinner while the Bouncer checks their ID
   if (authChecking) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
@@ -224,7 +261,6 @@ export default function RegisterStartup() {
             />
           </div>
 
-          {/* Uploads Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">

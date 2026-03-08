@@ -9,7 +9,7 @@ type Startup = {
   name: string;
   tagline: string;
   logo_url: string;
-  ad_image_url: string; // NEW: Added the promo image URL
+  ad_image_url: string;
   action_link: string;
 };
 
@@ -17,7 +17,7 @@ export default function FeaturedStartupAd() {
   const [featured, setFeatured] = useState<Startup | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // NEW: State to control the Popup Modal
+  // State to control the Promo Popup Modal
   const [activePromo, setActivePromo] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,18 +27,25 @@ export default function FeaturedStartupAd() {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       );
 
-      // Fetch the ONE featured startup
-      const { data, error } = await supabase
-        .from("startups")
-        .select("*")
-        .eq("is_featured", true)
-        .limit(1)
-        .single();
+      try {
+        // 🚀 FIX: Fetch ALL featured startups instead of just the first one
+        const { data, error } = await supabase
+          .from("startups")
+          .select("*")
+          .eq("is_featured", true);
 
-      if (data) {
-        setFeatured(data);
+        if (error) throw error;
+
+        // 🎲 FIX: If we found featured startups, pick a RANDOM one to show!
+        if (data && data.length > 0) {
+          const randomIndex = Math.floor(Math.random() * data.length);
+          setFeatured(data[randomIndex]);
+        }
+      } catch (error) {
+        console.error("Error fetching featured startup:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchFeatured();
@@ -48,7 +55,7 @@ export default function FeaturedStartupAd() {
 
   return (
     <>
-      {/* --- NEW: THE PROMO POPUP MODAL --- */}
+      {/* --- THE PROMO POPUP MODAL --- */}
       {activePromo && (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
@@ -128,7 +135,6 @@ export default function FeaturedStartupAd() {
           </div>
 
           {/* Action Buttons */}
-          {/* FIX: Changed to flex-col on mobile so they stack, keeping flex-row on larger screens */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto z-10 mt-2 md:mt-0">
             {/* Show 'View Promo' button ONLY if they uploaded an ad_image_url */}
             {featured.ad_image_url && (
