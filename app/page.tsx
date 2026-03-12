@@ -72,6 +72,9 @@ export default function LandingPage() {
           <div className="w-full max-w-2xl mx-auto mt-16 md:mt-20 px-2 md:px-0">
             <FeaturedStartupAd />
           </div>
+
+          {/* --- THE NEW KTU UPDATES BOARD --- */}
+          <div className="w-full mx-auto mt-12 md:mt-16 px-2 sm:px-4 text-left"></div>
         </div>
       </main>
     </div>

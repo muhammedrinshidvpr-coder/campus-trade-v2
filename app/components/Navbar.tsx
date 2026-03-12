@@ -8,11 +8,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  // --- ADDED THE STARTUPS LINK HERE ---
+  // --- ADDED THE KTU UPDATES LINK HERE ---
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Marketplace", path: "/marketplace" },
     { name: "Student Brands ✨", path: "/startups" },
+    { name: "KTU Updates 📅", path: "/ktu-updates" }, // <-- Your new link!
     { name: "Wishlist", path: "/wishlist" },
     { name: "Sell Item", path: "/sell" },
     { name: "Profile", path: "/profile" },
