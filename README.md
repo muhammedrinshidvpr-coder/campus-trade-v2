@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CampusTrade
 
-## Getting Started
+**A buy-and-sell marketplace for TKM College of Engineering students — list an item in seconds, close the deal on WhatsApp.**
 
-First, run the development server:
+🔗 **Live:** [campustrade-cosmiq.vercel.app](https://campustrade-cosmiq.vercel.app)
+
+---
+
+## The problem
+
+Students constantly buy and sell textbooks, lab coats, calculators and hostel gear, but it happens in noisy WhatsApp groups where listings get buried within minutes and there's no way to search.
+
+## The solution
+
+A dedicated campus marketplace that keeps the part students already like (talking on WhatsApp) and fixes the rest (discovery, search, trust).
+
+**Features**
+- **One-tap WhatsApp contact** — deep links open a chat with the seller, pre-filled with the item details
+- **Client-side image compression** — photos are compressed in a Web Worker to ~100 KB (max 1024px) before upload, so listing works on slow campus Wi-Fi and storage costs stay tiny
+- **AI-written descriptions** — Gemini generates a short, honest listing description from the item title
+- **Wishlist and profile** pages for managing your own listings
+- **KTU updates** feed and a **student startups** directory
+- **Secure by default** — Supabase Auth + Row Level Security; server actions validate every listing
+
+## Tech stack
+
+| Layer | Tech |
+|---|---|
+| Framework | Next.js 16 (App Router, Server Actions), React 19, TypeScript |
+| Styling | Tailwind CSS 4, Framer Motion |
+| Backend | Supabase (Postgres, Auth, RLS) |
+| Images | browser-image-compression → Cloudinary |
+| AI | Google Gemini (`gemini-2.5-flash`) |
+| Hosting | Vercel |
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create `.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=
+GEMINI_API_KEY=
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev   # http://localhost:3000
+```
 
-## Learn More
+## Author
 
-To learn more about Next.js, take a look at the following resources:
+Built by [Muhammed Rinshid V P](https://github.com/muhammedrinshidvpr-coder) · [CosmIQ](https://github.com/muhammedrinshidvpr-coder)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[MIT](./LICENSE)
